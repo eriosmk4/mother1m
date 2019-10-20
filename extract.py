@@ -19,6 +19,30 @@ rom_map = {
         'bank1': {
             'starts': 0x4010,
             'ends':   0x8010
+        },
+        'bank2': {
+            'starts': 0x8010,
+            'ends':   0xC010
+        },
+        'bank3': {
+            'starts': 0xC010,
+            'ends':   0x10010
+        },
+        'bank4': {
+            'starts': 0x10010,
+            'ends':   0x14010
+        },
+        'bank5': {
+            'starts': 0x14010,
+            'ends':   0x18010
+        },
+        'bank6': {
+            'starts': 0x18010,
+            'ends':   0x1C010
+        },
+        'bank7': {
+            'starts': 0x1C010,
+            'ends':   0x20010
         }
     }
 }
@@ -40,22 +64,28 @@ def getByteAt(loc, bits):
 map_data = []
 map_width = 256
 
-for i in range(rom_map['map_data']['bank1']['starts'] + map_bank_layout['map']['starts'], rom_map['map_data']['bank1']['starts'] + map_bank_layout['map']['length']):
-    byte = getByteAt(i, rom_bits)
+for bank in range(1, 8):
+    bank_str = 'bank' + str(bank)
 
-    map_data.append({
-        'tile64': byte[0:6],
-        'tileset2': byte[6],
-        'event_flag': byte[7]
-    })
+    for i in range(rom_map['map_data'][bank_str]['starts'] + map_bank_layout['map']['starts'], rom_map['map_data'][bank_str]['starts'] + map_bank_layout['map']['length']):
+        byte = getByteAt(i, rom_bits)
+
+        map_data.append({
+            'tile64': byte[0:6],
+            'tileset2': byte[6],
+            'event_flag': byte[7]
+        })
 
 def printMapAsASCII(map_data):
     for i in range(0, len(map_data)):
         if i >= map_width and i % map_width == 0:
             print('')
 
-        as_ord = ord(map_data[i]['tile64'].tobytes().decode())
-        print(chr((as_ord % 26) + 65), end='')
+        try:
+            as_ord = ord(map_data[i]['tile64'].tobytes().decode())
+            print(chr((as_ord % 26) + 65), end='')
+        except UnicodeDecodeError: # TODO: This will have to be fixed
+            print('?', end='')
 
     print('')
 
